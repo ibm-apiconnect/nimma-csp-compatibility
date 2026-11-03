@@ -1,6 +1,7 @@
 import chai from 'chai';
 import forEach from 'mocha-each';
 
+import normalizeSource from '../../__tests__/__helpers__/normalize-source.mjs';
 import Fallback from '../fallback.mjs';
 
 const { expect } = chai;
@@ -15,6 +16,8 @@ describe('Fallback', () => {
   ]).it('%s', fn => {
     const fb = new Fallback({}, fn);
 
-    expect(fb.extraCode).to.equal('(input, path, fn) => {}');
+    expect(normalizeSource(fb.extraCode)).to.equal(
+      normalizeSource('(input, path, fn) => {}'),
+    );
   });
 });

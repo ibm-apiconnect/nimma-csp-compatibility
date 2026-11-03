@@ -3,6 +3,7 @@ import forEach from 'mocha-each';
 
 import Nimma from '../core/index.mjs';
 import { jsonPathPlus } from '../fallbacks/index.mjs';
+import normalizeSource from './__helpers__/normalize-source.mjs';
 
 const { expect } = chai;
 
@@ -1219,10 +1220,13 @@ export default function (input, callbacks) {
   describe('given fallback', () => {
     it('and errored expressions, should include whatever fallback specified', () => {
       expect(
-        generate(['$.foo^.info'], {
-          fallback: jsonPathPlus,
-        }),
-      ).to.eq(`import {Scope} from "nimma/runtime";
+        normalizeSource(
+          generate(['$.foo^.info'], {
+            fallback: jsonPathPlus,
+          }),
+        ),
+      ).to.eq(
+        normalizeSource(`import {Scope} from "nimma/runtime";
 import {JSONPath as nimma_JSONPath} from "jsonpath-plus";
 import {default as nimma_toPath} from "lodash.topath";
 const fallback = Function(\`return (input, path, fn) => {
@@ -1251,7 +1255,8 @@ export default function (input, callbacks) {
     scope.destroy();
   }
 }
-`);
+`),
+      );
     });
 
     it('and no errored expressions, should keep code untouched', () => {
