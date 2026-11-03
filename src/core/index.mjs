@@ -1,3 +1,5 @@
+/* global window */
+
 import codegen from '../codegen/index.mjs';
 import * as runtime from '../runtime/index.mjs';
 import getOutputFormat from './utils/determine-format.mjs';
@@ -54,18 +56,42 @@ export default class Nimma {
       .replace(IMPORT_DECLARATIONS_REGEXP, `const $1 = ${globals};`)
       .replace(RegExp(IMPORT_DECLARATIONS_REGEXP.source, 'g'), '');
 
-    this.#compiledFn = Function(
+    const argNames = [
       globals,
       ...(this.#fallback === null
         ? []
         : Array.from(this.#fallback.runtimeDeps.keys())),
-      code,
-    )(
+    ];
+    const argValues = [
       runtime,
       ...(this.#fallback === null
         ? []
         : Array.from(this.#fallback.runtimeDeps.values())),
-    );
+    ];
+    let makeFn;
+    try {
+      makeFn = Function(...argNames, code);
+    } catch (e) {
+      const SvalConstructor =
+        (typeof globalThis !== 'undefined' && globalThis.__sval) ||
+        (typeof window !== 'undefined' && window.__sval);
+      if (SvalConstructor) {
+        const interpreter = new SvalConstructor({
+          ecmaVer: 'latest',
+          sandBox: false,
+        });
+        const params = argNames.join(', ');
+        interpreter.run(`
+          exports.makeFn = function(${params}) {
+            ${code}
+          };
+        `);
+        makeFn = interpreter.exports.makeFn;
+      } else {
+        throw e;
+      }
+    }
+    this.#compiledFn = makeFn(...argValues);
 
     this.#compiledFn(input, callbacks);
   }
