@@ -1,3 +1,18 @@
+## 🛠️ About This Fork
+
+This is a fork of [`nimma`](https://github.com/P0lip/nimma) created to improve Content Security Policy (CSP) compliance for secure web environments.
+
+### 🚨 Why Fork?
+
+The original package compiles generated JavaScript code for JSONPath expressions at runtime using dynamic code generation (`Function()`), which is blocked under CSP unless `unsafe-eval` is allowed. This presents security concerns for browser-based applications that enforce strict CSP rules.
+
+### ✅ What Was Changed
+
+- 🔁 Added a fallback to the [Sval](https://github.com/Siubaak/sval) JavaScript interpreter (`globalThis.__sval` / `window.__sval`) in [`src/core/index.mjs`](src/core/index.mjs) when `Function()` is blocked by CSP, allowing generated JSONPath functions to be executed safely.
+- 🧪 Updated internal compilation logic and test cases to support interpreted execution under CSP constraints.
+- 🔒 Ensures JSONPath compilation and querying can run in environments with strict CSP (e.g., browsers without `unsafe-eval`).
+
+
 # nimma
 
 [![npm](https://img.shields.io/npm/v/nimma)](https://www.npmjs.com/package/nimma)
@@ -21,7 +36,7 @@
   or if npm is the package manager of your choice
 
   ```sh
-  npm install nimma --save
+  npm install nimma-csp-compatibility --save
   ```
 
 ## Features
