@@ -1,5 +1,5 @@
 {
-  "name": "nimma-csp-compatibility",
+  "name": "@ibmcloud/nimma-csp-compatibility",
   "version": "0.2.3-csp.1",
   "description": "Scalable JSONPath engine.",
   "keywords": [
